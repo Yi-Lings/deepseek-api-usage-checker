@@ -1,98 +1,142 @@
-# DeepSeek API 用量查询工具
+# DeepSeek API Usage Checker
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-一键获取 DeepSeek 开放平台 API 用量数据，自动生成结构化的 Excel 报告（含余额、Token 消耗、缓存命中率、费用明细）。
+自动化提取 DeepSeek 开放平台用量信息 — 账户余额、各模型 Token 消耗（含缓存命中/未命中拆分）、消费金额、按日分布，一键生成结构化 Excel 报告。
+
+![Demo](ds.png)
 
 ## 功能
 
-- **自动提取**：打开浏览器 → 登录 DeepSeek 平台 → 提取 API 数据 → 生成 Excel → 关闭浏览器
-- **完整数据**：远超页面 UI 显示的内容——包括缓存命中/未命中拆分、输入/输出 Token 拆分、各模型消费金额
-- **结构化报告**：输出 `.xlsx` 文件，包含 4 个工作表
-- **跨平台**：Windows 双击 `.cmd` 运行，macOS/Linux 运行 `.sh`
-- **无痛复用**：`--persistent` 模式保存登录态，下次无需重新登录
-
-## 报告内容
-
-| 工作表 | 内容 |
-|--------|------|
-| **账户总览** | 充值余额、赠送余额、月消费、Token 总量、可用 Token 估值 |
-| **模型用量** | 各模型请求数、缓存命中/未命中 Prompt Tokens、输出 Tokens、总 Tokens、缓存命中率 |
-| **消费明细** | 按模型拆分缓存命中/未命中/输出费用（CNY） |
-| **按日分布** | 当月逐日各模型用量明细 |
-
-### 数据字段
-
-- `normal_wallets[].balance` — 充值余额 (CNY)
-- `bonus_wallets[].balance` — 赠送余额 (CNY)
-- `monthly_costs[].amount` — 当月总消费 (CNY)
-- `monthly_token_usage` — 当月总 Token 消耗
-- `total_available_token_estimation` — 可用 Token 估值
-- `PROMPT_CACHE_HIT_TOKEN` / `PROMPT_CACHE_MISS_TOKEN` — 缓存命中/未命中 Token 数
-- `RESPONSE_TOKEN` — 输出 Token 数
-- `REQUEST` — API 请求次数
+- ✅ 自动打开浏览器并捕获 DeepSeek 平台 API 响应
+- ✅ 提取账户总览：充值余额、赠送余额、月消费、Token 估值
+- ✅ 各模型 Token 明细：请求数、缓存命中/未命中、输出 Tokens、缓存命中率
+- ✅ 各模型消费明细：按缓存命中/未命中/输出拆分费用
+- ✅ 按日分布：当月逐日各模型用量明细
+- ✅ 输出为 `.xlsx` 文件（4 个工作表），带格式化样式
+- ✅ 支持有头/无头两种模式
 
 ## 环境要求
 
-- [Node.js](https://nodejs.org/) + `playwright-cli`（全局安装）
-- [Python 3](https://www.python.org/) + `openpyxl` 库
-- **Windows**: [Git for Windows](https://git-scm.com/downloads)（提供 Bash 环境）
-- **macOS/Linux**: Bash 环境（系统自带）
+| 依赖 | 版本要求 | 安装 |
+|------|----------|------|
+| [playwright-cli](https://github.com/anthropics/claude-code/tree/main/.claude/skills/playwright-cli) | 最新 | Claude Code 内置 / `npm install -g playwright-cli` |
+| Python | ≥ 3.8 | [python.org](https://www.python.org/) |
+| openpyxl | ≥ 3.0 | `pip install openpyxl` |
+| Git Bash | （Windows 需要） | [git-scm.com](https://git-scm.com/) |
 
-### 安装依赖
-
-```bash
-# 安装 playwright-cli
-npm install -g @playwright/cli@latest
-
-# 安装 Python 依赖
-pip install openpyxl
-```
-
-## 使用
+## 使用说明
 
 ### Windows
-下载check_ds.cmd和check_ds.sh放在一个文件夹下。
-在Powershell命令行运行：
+
+双击 `check_ds.cmd`，或从命令行运行：
 
 ```cmd
-.\check_ds.cmd --headless
+check_ds.cmd
 ```
 
-首次运行会打开浏览器窗口，请在 DeepSeek 登录页面**手动登录**（使用手机号或密码），然后在命令行按 Enter 继续。脚本会自动提取数据并生成 Excel 报告。
+支持 `--headless` 参数（需已登录过）：
 
-后续运行会自动复用登录状态（`--persistent` 模式），无需重复登录。
+```cmd
+check_ds.cmd --headless
+```
 
 ### macOS / Linux
 
 ```bash
-# 交互模式（默认显示浏览器）
-bash check_ds.sh
-
-# 无头模式（需已登录过）
-bash check_ds.sh --headless
+bash check_ds.sh            # 交互模式（显示浏览器）
+bash check_ds.sh --headless # 无头模式
 ```
 
-### 输出
+### 首次使用
+
+首次运行需要手动登录 DeepSeek 开放平台：
+
+1. 运行脚本（**不要加** `--headless`）
+2. 浏览器自动打开 [platform.deepseek.com/usage](https://platform.deepseek.com/usage)
+3. 在浏览器中手动登录（手机号/密码）
+4. 切换回终端，按 Enter 继续
+5. 脚本自动提取数据并生成 Excel
+
+后续运行使用 `--headless` 模式即可自动复用登录状态。
+
+## 输出说明
+
+输出文件位于 `reports/ds-<日期时间戳>.xlsx`，包含 4 个工作表：
+
+| Sheet | 内容 |
+|-------|------|
+| **账户总览** | 充值余额、赠送余额、月消费、当月 Token 总量、可用 Token 估值 |
+| **模型用量** | 各模型请求数、缓存命中/未命中/输出 Tokens、缓存命中率 |
+| **消费明细** | 按模型拆分缓存命中/未命中/输出费用（CNY），含总计行 |
+| **按日分布** | 当月逐日各模型用量明细（Token + 金额） |
+
+### 数据字段
+
+| 字段 | 来源 | 含义 |
+|------|------|------|
+| `normal_wallets[].balance` | API #11 | 充值余额 (CNY) |
+| `bonus_wallets[].balance` | API #11 | 赠送余额 (CNY) |
+| `monthly_costs[].amount` | API #11 | 当月总消费 (CNY) |
+| `PROMPT_CACHE_HIT_TOKEN` | API #12 | 输入缓存命中 Token 数 |
+| `PROMPT_CACHE_MISS_TOKEN` | API #12 | 输入缓存未命中 Token 数 |
+| `RESPONSE_TOKEN` | API #12 | 输出 Token 数 |
+| `REQUEST` | API #12 | API 请求次数 |
+
+### 数据关系
 
 ```
-reports/ds-YY-MM-DD-HH-MM.xlsx
+总输入 Tokens = CACHE_HIT + CACHE_MISS
+缓存命中率   = CACHE_HIT / (CACHE_HIT + CACHE_MISS) × 100%
+模型总 Tokens = CACHE_HIT + CACHE_MISS + RESPONSE
+```
+
+## 工作原理
+
+```
+┌──────────────┐    ┌──────────────────┐    ┌──────────────────┐
+│ 打开浏览器    │───▶│ 捕获 API 请求     │───▶│ 提取响应体 JSON   │
+│ (Playwright)  │    │ (requests 列表)    │    │ (response-body)   │
+└──────────────┘    └──────────────────┘    └────────┬─────────┘
+                                                     ▼
+┌──────────────┐    ┌──────────────────┐    ┌──────────────────┐
+│ Excel 报告    │◀───│ Python openpyxl   │◀───│ 3 个 JSON 文件   │
+│ (4 个 Sheet)  │    │ 生成格式化表格     │    │ (临时目录)        │
+└──────────────┘    └──────────────────┘    └──────────────────┘
+```
+
+为什么不通过 `page.evaluate(fetch())` 获取数据？——DeepSeek 平台的 API 请求携带了 HttpOnly Cookie 和 `authorization` header，这些在 `fetch()` 中不可用。脚本通过 Playwright 的请求拦截机制直接读取浏览器已发出的 XHR 响应，无需处理认证。
+
+## 项目结构
+
+```
+deepseek-api-usage-checker/
+├── check_ds.sh              # 主脚本（Bash + 内嵌 Python）
+├── check_ds.cmd             # Windows 启动器
+├── references/
+│   └── gen_report.py        # Python 报告生成器（独立版本）
+├── reports/                 # Excel 输出目录（自动创建）
+├── ds.png                   # 示例截图
+├── .gitattributes
+├── LICENSE
+└── README.md
 ```
 
 ## 注意事项
 
-1. **首次运行**：需要手动登录。脚本检测到未登录时会暂停等待。
-2. **请求号变化**：每次 Session 的 API 请求 ID 可能不同，脚本会自动发现。
-3. **认证限制**：不能通过 `fetch()` 直接调用 API——必须用 `playwright-cli response-body` 读取浏览器中已发出的真实请求。
-4. **UTC 时区**：DeepSeek 平台数据按 UTC+0 显示。
-5. **Python 版本**：Windows 上使用 `python` 命令（非 `python3`），Windows Store 的 `python3` 有沙箱限制。
+1. **数据延迟**：DeepSeek 平台数据约有 5 分钟延迟
+2. **请求 ID 不固定**：每次 session 的请求 ID 可能变化，脚本会自动检测
+3. **Authorization Token 时效**：Token 有有效期，过期后需重新登录
+4. **时区**：所有日期按 UTC+0 显示
+5. **Python 版本**：Windows 上使用 `python` 而非 `python3`（Windows Store `python3` 有沙箱限制）
+6. **UI 不完整**：页面 Snapshot 不显示缓存命中/未命中拆分，必须通过 API 响应获取
 
-## 工作原理
-![image](https://github.com/Yi-Lings/deepseek-api-usage-checker/blob/master/ds.png)
+## 已知坑
 
-
-脚本通过 `playwright-cli` 启动浏览器并导航到 DeepSeek 用量页面，监听网络请求，从 `response-body` 获取原始 JSON 数据，然后用 Python 解析并生成 `openpyxl` 格式的 Excel 文件。
+- **不要**用 `page.evaluate(fetch())` 替代 `response-body` — `fetch()` 不携带认证 Cookie
+- 请求号 11/12/13 每次 session 可能不同，脚本通过 URL 模式匹配自动发现
+- 月份选择器包含未来日期，无数据的天填充为零
 
 ## License
 
-MIT
+[MIT](LICENSE)
