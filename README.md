@@ -88,11 +88,8 @@ reports/ds-YY-MM-DD-HH-MM.xlsx
 5. **Python 版本**：Windows 上使用 `python` 命令（非 `python3`），Windows Store 的 `python3` 有沙箱限制。
 
 ## 工作原理
-
-```
 ![image](https://github.com/Yi-Lings/deepseek-api-usage-checker/blob/master/ds.png)
 
-```
 
 脚本通过 `playwright-cli` 启动浏览器并导航到 DeepSeek 用量页面，监听网络请求，从 `response-body` 获取原始 JSON 数据，然后用 Python 解析并生成 `openpyxl` 格式的 Excel 文件。
 
