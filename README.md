@@ -52,8 +52,8 @@ pip install openpyxl
 ## 使用
 
 ### Windows
-
-双击 `check_ds.cmd`，或在命令行运行：
+下载check_ds.cmd和check_ds.sh放在一个文件夹下。
+在Powershell命令行运行：
 
 ```cmd
 check_ds.cmd
@@ -90,7 +90,7 @@ reports/ds-YY-MM-DD-HH-MM.xlsx
 ## 工作原理
 
 ```
-<img width="1765" height="592" alt="ds" src="https://github.com/user-attachments/assets/18aed39c-e0db-4dd8-bff9-09f778a71951" />
+![image](https://github.com/Yi-Lings/deepseek-api-usage-checker/blob/master/ds.png)
 
 ```
 
