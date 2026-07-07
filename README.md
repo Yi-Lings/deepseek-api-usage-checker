@@ -56,7 +56,7 @@ pip install openpyxl
 在Powershell命令行运行：
 
 ```cmd
-check_ds.cmd
+.\check_ds.cmd --headless
 ```
 
 首次运行会打开浏览器窗口，请在 DeepSeek 登录页面**手动登录**（使用手机号或密码），然后在命令行按 Enter 继续。脚本会自动提取数据并生成 Excel 报告。
