@@ -26,7 +26,7 @@
 | Git Bash | （Windows 需要） | [git-scm.com](https://git-scm.com/) |
 
 ## 使用说明
-
+下载Releases，解压。
 ### Windows
 
 双击 `check_ds.cmd`，或从命令行运行：
