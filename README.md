@@ -90,14 +90,8 @@ reports/ds-YY-MM-DD-HH-MM.xlsx
 ## 工作原理
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌────────────┐     ┌──────────┐
-│ playwright- │────▶│  DeepSeek    │────▶│  Python    │────▶│  Excel   │
-│  CLI       │     │  开放平台    │     │  openpyxl  │     │  报告    │
-└─────────────┘     └──────────────┘     └────────────┘     └──────────┘
-       │                    │                    │
-  打开浏览器           提取 3 个 API        解析 JSON →
-  登录 DeepSeek      响应体的 JSON 数据    写入 4 个 Sheet
-  （persistent）       （balance/usage/cost）
+<img width="1765" height="592" alt="ds" src="https://github.com/user-attachments/assets/18aed39c-e0db-4dd8-bff9-09f778a71951" />
+
 ```
 
 脚本通过 `playwright-cli` 启动浏览器并导航到 DeepSeek 用量页面，监听网络请求，从 `response-body` 获取原始 JSON 数据，然后用 Python 解析并生成 `openpyxl` 格式的 Excel 文件。
